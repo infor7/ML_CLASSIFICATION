@@ -1,4 +1,4 @@
-# ML_CLUSTERING
+# ML_CLASSIFICATION
 
 ## How to start development?
 ```
@@ -22,4 +22,7 @@ def execute(ax=None, **kwargs):
 
 Add record to xml undex app/config/config.xml
 
-Run python app/start.py
+Run 
+```
+python app/start.py
+```
