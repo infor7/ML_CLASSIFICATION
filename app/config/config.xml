@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- EXAMPLE
+<PLOT>
+	<TITLE>
+		KNN- title will be used to execute only particular ML methods from CLI, keep it simple.
+	</TITLE>
+	<SCRIPT_PATH>
+		scripts/knn/knn.py- path to file with execute function. Function must return plot object.
+	</SCRIPT_PATH>
+	<PARAMETERS>
+		Additional parameters, to pass to execute function. In this case execute will be called as execute(name="Tommy", grade="A")
+		<name>
+			Tommy
+		</name>
+		<grade>
+			A
+		</grade>
+	</PARAMETERS>
+</PLOT>
+
+-->
+
+<APP_CONFIG>
+<PLOT>
+	<TITLE>
+		KNN
+	</TITLE>
+	<SCRIPT_PATH>
+		plots/knn/knn.py
+	</SCRIPT_PATH>
+	<PARAMETERS>
+		<name>
+			Tommy
+		</name>
+		<grade>
+			A
+		</grade>
+	</PARAMETERS>
+</PLOT>
+</APP_CONFIG>
