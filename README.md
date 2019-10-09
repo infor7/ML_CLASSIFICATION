@@ -9,7 +9,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Add a new directory under app/scripts
+Add a new directory under app/plots
 
 Place your code inside it. Code must have function named execute.
 
@@ -20,7 +20,7 @@ def execute(ax=None, **kwargs):
     line, = ax.plot (np.arange(0.0, 5.0, 0.02))
 ```
 
-Add record to xml undex app/config/config.xml
+Add record to xml under app/config/config.xml
 
 Run 
 ```
