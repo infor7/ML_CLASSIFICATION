@@ -22,7 +22,10 @@ class PlotML():
                 script.execute(list_of_plots[index], **plot['parameters'])
             except Exception as e:
                 print(e)
-
+            list_of_plots[index].set_title(plot['title'])
+            if "x_label" in plot['parameters'] and "y_label" in plot['parameters']:
+                list_of_plots[index].set_xlabel(plot['parameters']['x_label'])
+                list_of_plots[index].set_ylabel(plot['parameters']['y_label'])
         plt.show()
 
     def convert_from_path_to_module(self, path):
