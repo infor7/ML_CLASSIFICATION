@@ -22,20 +22,36 @@
 -->
 
 <APP_CONFIG>
-<PLOT>
-	<TITLE>
-		KNN
-	</TITLE>
-	<SCRIPT_PATH>
-		plots/knn/knn.py
-	</SCRIPT_PATH>
-	<PARAMETERS>
-		<name>
-			Tommy
-		</name>
-		<grade>
-			A
-		</grade>
-	</PARAMETERS>
-</PLOT>
+    <PLOT>
+        <TITLE>
+            KNN - K number vs accuracy
+        </TITLE>
+        <SCRIPT_PATH>
+            plots/knn/knn.py
+        </SCRIPT_PATH>
+        <PARAMETERS>
+            <x_label>
+                K value
+            </x_label>
+            <y_label>
+                Accuracy
+            </y_label>
+        </PARAMETERS>
+    </PLOT>
+	<PLOT>
+		<TITLE>
+			KNN - Percentage of train data vs accuracy
+		</TITLE>
+		<SCRIPT_PATH>
+			plots/knn/knn_train_precentage.py
+		</SCRIPT_PATH>
+		<PARAMETERS>
+            <x_label>
+                Percentage of train samples
+            </x_label>
+            <y_label>
+                Accuracy
+            </y_label>
+		</PARAMETERS>
+	</PLOT>
 </APP_CONFIG>
