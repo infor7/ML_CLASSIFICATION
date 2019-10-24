@@ -5,7 +5,7 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import cross_val_score
 import numpy as np
 from itertools import permutations
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 
 
 def execute(ax=None, **kwargs):
@@ -21,7 +21,7 @@ def execute(ax=None, **kwargs):
     return line
 
 
-def accuracy_comparison(dataset, labels):
+def accuracy_of_gaussian(dataset, labels):
     folds = 3
     data_split, labels_split = cross_validation_split(dataset=dataset, labels=labels, folds=folds)
     nb = NaiveBayes()
@@ -37,11 +37,15 @@ def accuracy_comparison(dataset, labels):
     #     print("sklearn: ", accuracy)
     for i in range(folds):
         rest = [x for x in range(folds) if x != i]
-        training_data = np.array(data_split)[rest].reshape(-1, np.array(data_split)[rest].shape[-1])
-        training_labels = np.array(labels_split)[rest].flatten()
+        # works only for folds = 3
+        # training_data = np.array(data_split)[rest].reshape(-1, np.array(data_split)[rest].shape[-1])
+        training_data = np.append(data_split[rest[0]], data_split[rest[1]], axis=0)
+        # training_labels = np.array(labels_split)[rest].flatten()
+        training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
         testing_data = data_split[i]
         testing_labels = labels_split[i]
-        predictions = nb.naive_bayes(training_data, training_labels, testing_data)
+        predictions = nb.naive_bayes_gaussian(training_data, training_labels, testing_data)
+
         accuracy = sum(predictions==testing_labels)/len(testing_data)
         accuracies.append(accuracy)
         print("my: ", accuracy)
@@ -60,14 +64,39 @@ def cross_validation_split(dataset, labels, folds=3):
     labels_split = np.array_split(labels_copy, folds)
     return dataset_split, labels_split
 
+def accuracy_of_multinomial(dataset, labels):
+    folds = 3
+    data_split, labels_split = cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+    nb = NaiveBayes()
+    clf = MultinomialNB(alpha=0.0001, fit_prior=True)
+    accuracies = []
+    for i in range(folds):
+        rest = [x for x in range(folds) if x != i]
+        # works only for folds = 3
+        # training_data = np.array(data_split)[rest].reshape(-1, np.array(data_split)[rest].shape[-1])
+        training_data = np.append(data_split[rest[0]], data_split[rest[1]], axis=0)
+        # training_labels = np.array(labels_split)[rest].flatten()
+        training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
+        testing_data = data_split[i]
+        testing_labels = labels_split[i]
+        predictions = nb.naive_bayes_multinomial(training_data, training_labels, testing_data)
+        accuracy = sum(predictions==testing_labels)/len(testing_data)
+        accuracies.append(accuracy)
+        print("my: ", accuracy)
+        clf.fit(training_data, training_labels)
+        accuracy = sum(clf.predict(testing_data)==testing_labels)/len(testing_data)
+        print("sklearn: ", accuracy)
 
 def accuracy_for_letters():
     with open('../../../datasets/letter-recognition.data', 'r') as f:
         dataset, labels = tools.load_text_file(f, first_columb_labels=True)
-        iris = load_iris()
-        accuracy_comparison(dataset, labels)
+        # iris = load_iris()
+        print("Multinomial:")
+        accuracy_of_multinomial(dataset,labels)
+        print("Gaussian:")
+        accuracy_of_gaussian(dataset,labels)
 
 if __name__ == "__main__":
     # iris = load_iris()
-    # accuracy_comparison(iris.data, iris.target)
+    # accuracy_of_gaussian(iris.data, iris.target)
     accuracy_for_letters()
