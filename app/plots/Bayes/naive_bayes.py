@@ -96,7 +96,18 @@ def accuracy_for_letters():
         print("Gaussian:")
         accuracy_of_gaussian(dataset,labels)
 
+def accuracy_for_wines():
+    with open('../../../datasets/Wine.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, first_columb_labels=True, dtype=float, labels_numeric=True)
+        # iris = load_iris()
+        labels -= 1
+        print("Multinomial:")
+        accuracy_of_multinomial(dataset, labels)
+        print("Gaussian:")
+        accuracy_of_gaussian(dataset, labels)
+
 if __name__ == "__main__":
     # iris = load_iris()
     # accuracy_of_gaussian(iris.data, iris.target)
-    accuracy_for_letters()
+    # accuracy_for_letters()
+    accuracy_for_wines()
