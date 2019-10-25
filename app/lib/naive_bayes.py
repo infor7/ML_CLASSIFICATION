@@ -55,9 +55,11 @@ class NaiveBayes(object):
         dataset_classed = self.split_by_class(train_data, train_labels)
         no_of_words = len(train_data)
         # prob_of_class = np.log(np.array([len(x) for x in dataset_classed]) / no_of_words)
-        # hist_bins_min = [np.min(train_data[:, x]) for x in range(len(train_data[0, :]))]
-        # hist_bins_max = [np.max(train_data[:, x]) for x in range(len(train_data[0, :]))]
-        hist_bins = np.arange(17)
+        hist_bins_min = np.min(train_data)
+        hist_bins_min = min(hist_bins_min, np.min(test_data))
+        hist_bins_max = np.max(train_data)
+        hist_bins_max = max(hist_bins_max, np.max(test_data))
+        hist_bins = np.arange(hist_bins_min, hist_bins_max+2)
         # prob_of_letter_in_whole = np.log(np.array(
         #     [np.histogram(train_data[:, x], bins=hist_bins, density=True)[0] for x in range(len(train_data[0, :]))])+alpha)
         summary_of_prob = []
@@ -68,6 +70,7 @@ class NaiveBayes(object):
                 hist, _ = np.histogram(feature, bins=hist_bins, density=True)
                 # prob of each feature value in class to all values
                 summary_for_each_class[feature_num] =np.log(hist+alpha)
+            summary_for_each_class += np.log(len(class_f)/len(train_data))
             summary_of_prob.append(summary_for_each_class)
         # gaussian_predictions
         sums_of_probs = np.zeros((len(test_data),len(dataset_classed)))
@@ -75,7 +78,7 @@ class NaiveBayes(object):
             current_summary = summary_of_prob[class_f]
             sum_of_prob=np.zeros(len(test_data))
             for i in range(len(test_data[0])):
-                sum_of_prob+=current_summary[i,test_data[:,i]]
+                sum_of_prob+=current_summary[i,np.array(test_data[:,i], dtype=int)]
             sums_of_probs[:,class_f] = sum_of_prob
 
         return np.argmax(sums_of_probs, axis=1)

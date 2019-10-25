@@ -2,7 +2,7 @@ import numpy as np
 import re
 
 
-def load_text_file(file, first_columb_labels=False, dtype=int):
+def load_text_file(file, first_columb_labels=False, dtype=int, labels_numeric=False):
     lines = file.readlines()
     num_lines = sum(1 for line in lines)
     no_of_features = len(re.split('[, \t]', lines[0]))
@@ -14,7 +14,10 @@ def load_text_file(file, first_columb_labels=False, dtype=int):
         words = re.split('[, \t]', line)
         if len(words) > 1:
             data[index] = words[first_columb_labels:]
-            labels[index] = ord(words[0])-65
+            if not labels_numeric:
+                labels[index] = ord(words[0])-65
+            else:
+                labels[index] = words[0]
 
     return data, labels
 
