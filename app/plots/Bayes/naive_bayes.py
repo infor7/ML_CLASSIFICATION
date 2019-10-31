@@ -83,13 +83,13 @@ def accuracy_of_multinomial(dataset, labels):
         accuracy = sum(predictions==testing_labels)/len(testing_data)
         accuracies.append(accuracy)
         print("my: ", accuracy)
-        clf.fit(training_data, training_labels)
-        accuracy = sum(clf.predict(testing_data)==testing_labels)/len(testing_data)
+        clf.fit(abs(training_data), training_labels)
+        accuracy = sum(clf.predict(abs(testing_data))==testing_labels)/len(testing_data)
         print("sklearn: ", accuracy)
 
 def accuracy_for_letters():
     with open('../../../datasets/letter-recognition.data', 'r') as f:
-        dataset, labels = tools.load_text_file(f, first_columb_labels=True)
+        dataset, labels = tools.load_text_file(f, first_column_labels=True)
         # iris = load_iris()
         print("Multinomial:")
         accuracy_of_multinomial(dataset,labels)
@@ -98,7 +98,18 @@ def accuracy_for_letters():
 
 def accuracy_for_wines():
     with open('../../../datasets/Wine.csv', 'r') as f:
-        dataset, labels = tools.load_text_file(f, first_columb_labels=True, dtype=float, labels_numeric=True)
+        dataset, labels = tools.load_text_file(f, first_column_labels=True, dtype=float, labels_numeric=True)
+        # iris = load_iris()
+        labels -= 1
+        print("Multinomial:")
+        accuracy_of_multinomial(dataset, labels)
+        print("Gaussian:")
+        accuracy_of_gaussian(dataset, labels)
+
+
+def accuracy_for_trees():
+    with open('../../../datasets/covtype.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, last_column_labels=True, dtype=float, labels_numeric=True)
         # iris = load_iris()
         labels -= 1
         print("Multinomial:")
@@ -110,4 +121,5 @@ if __name__ == "__main__":
     # iris = load_iris()
     # accuracy_of_gaussian(iris.data, iris.target)
     # accuracy_for_letters()
-    accuracy_for_wines()
+    # accuracy_for_wines()
+    accuracy_for_trees()
