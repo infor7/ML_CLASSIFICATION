@@ -55,22 +55,28 @@ class NaiveBayes(object):
         dataset_classed = self.split_by_class(train_data, train_labels)
         no_of_words = len(train_data)
         # prob_of_class = np.log(np.array([len(x) for x in dataset_classed]) / no_of_words)
-        hist_bins_min = np.min(train_data)
-        hist_bins_min = min(hist_bins_min, np.min(test_data))
-        hist_bins_max = np.max(train_data)
-        hist_bins_max = max(hist_bins_max, np.max(test_data))
-        hist_bins = np.arange(hist_bins_min, hist_bins_max+2)
+        # hist_bins_min = np.min(train_data)
+        # hist_bins_min = min(hist_bins_min, np.min(test_data))
+        # hist_bins_max = np.max(train_data)
+        # hist_bins_max = max(hist_bins_max, np.max(test_data))
+        # hist_bins = np.arange(hist_bins_min, hist_bins_max+2)
+        hist_bins_min = [min(np.min(train_data[:, num_feature]), np.min(test_data[:, num_feature])) for num_feature in range(len(train_data[0]))]
+        hist_bins_max = [max(np.max(train_data[:, num_feature]), np.max(test_data[:, num_feature])) for num_feature in range(len(train_data[0]))]
+        # hist_bins = [np.array(np.arange(np.floor(hist_bins_min[i]), np.ceil(hist_bins_max[i])+2), dtype=int) for i in range(len(train_data[0]))]
+        hist_bins = [np.linspace(np.floor(hist_bins_min[i]), np.ceil(hist_bins_max[i])+2, 100) for i in range(len(train_data[0]))]
         # prob_of_letter_in_whole = np.log(np.array(
         #     [np.histogram(train_data[:, x], bins=hist_bins, density=True)[0] for x in range(len(train_data[0, :]))])+alpha)
         summary_of_prob = []
         for class_f in dataset_classed:
-            summary_for_each_class = np.zeros((len(class_f[0]), len(hist_bins)-1))
+            # summary_for_each_class = np.zeros((len(class_f[0]), len(hist_bins)-1))
+            summary_for_each_class = []
             for feature_num in range(len(class_f[0])):
                 feature = class_f[:, feature_num]
-                hist, _ = np.histogram(feature, bins=hist_bins, density=True)
+                hist, _ = np.histogram(feature, bins=hist_bins[feature_num], density=True)
                 # prob of each feature value in class to all values
-                summary_for_each_class[feature_num] =np.log(hist+alpha)
-            summary_for_each_class += np.log(len(class_f)/len(train_data))
+                # summary_for_each_class[feature_num] =np.log(hist+alpha)
+                summary_for_each_class.append(np.log(hist + alpha))
+            # summary_for_each_class += np.log(len(class_f)/len(train_data))
             summary_of_prob.append(summary_for_each_class)
         # gaussian_predictions
         sums_of_probs = np.zeros((len(test_data),len(dataset_classed)))
@@ -78,7 +84,9 @@ class NaiveBayes(object):
             current_summary = summary_of_prob[class_f]
             sum_of_prob=np.zeros(len(test_data))
             for i in range(len(test_data[0])):
-                sum_of_prob+=current_summary[i,np.array(test_data[:,i], dtype=int)]
+                # sum_of_prob+=current_summary[i,np.array(test_data[:,i], dtype=int)]
+                indices = np.searchsorted(hist_bins[i],test_data[:, i])-1
+                sum_of_prob += current_summary[i][indices]
             sums_of_probs[:,class_f] = sum_of_prob
 
         return np.argmax(sums_of_probs, axis=1)
