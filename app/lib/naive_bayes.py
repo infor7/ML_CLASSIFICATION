@@ -13,6 +13,7 @@ class NaiveBayes(object):
         dataset_classed = self.split_by_class(dataset, labels)
         mean = np.array([np.mean(x, axis=0) for x in dataset_classed])
         std = np.array([np.std(x, axis=0) for x in dataset_classed])
+        std[std==0] = 1
         summary = [mean, std, [len(x) for x in dataset_classed]]
         return summary
 
@@ -53,7 +54,7 @@ class NaiveBayes(object):
 
     def naive_bayes_multinomial(self, train_data, train_labels, test_data, alpha=0.0001):
         dataset_classed = self.split_by_class(train_data, train_labels)
-        no_of_words = len(train_data)
+        # no_of_words = len(train_data)
         # prob_of_class = np.log(np.array([len(x) for x in dataset_classed]) / no_of_words)
         # hist_bins_min = np.min(train_data)
         # hist_bins_min = min(hist_bins_min, np.min(test_data))
@@ -70,12 +71,13 @@ class NaiveBayes(object):
         for class_f in dataset_classed:
             # summary_for_each_class = np.zeros((len(class_f[0]), len(hist_bins)-1))
             summary_for_each_class = []
+            prob_of_class = np.log(len(class_f)/len(train_data))
             for feature_num in range(len(class_f[0])):
                 feature = class_f[:, feature_num]
                 hist, _ = np.histogram(feature, bins=hist_bins[feature_num], density=True)
                 # prob of each feature value in class to all values
                 # summary_for_each_class[feature_num] =np.log(hist+alpha)
-                summary_for_each_class.append(np.log(hist + alpha))
+                summary_for_each_class.append(np.log(hist + alpha)+prob_of_class)
             # summary_for_each_class += np.log(len(class_f)/len(train_data))
             summary_of_prob.append(summary_for_each_class)
         # gaussian_predictions
