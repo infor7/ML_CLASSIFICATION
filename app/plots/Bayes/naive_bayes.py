@@ -23,10 +23,11 @@ def execute(ax=None, **kwargs):
 
 def accuracy_of_gaussian(dataset, labels):
     folds = 3
-    data_split, labels_split = cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+    data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
     nb = NaiveBayes()
     accuracies = []
     clf = GaussianNB()
+    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb.naive_bayes_gaussian, sklearn_class=clf)
     # for i in permutations(range(folds),2):
     #     predictions = nb.naive_bayes(data_split[i[0]], labels_split[i[0]], data_split[i[1]])
     #     accuracy = sum(predictions==labels_split[i[1]])/len(labels_split[i[1]])
@@ -35,66 +36,28 @@ def accuracy_of_gaussian(dataset, labels):
     #     clf.fit(data_split[i[0]], labels_split[i[0]])
     #     accuracy = sum(clf.predict(data_split[i[1]])==labels_split[i[1]])/len(labels_split[i[1]])
     #     print("sklearn: ", accuracy)
-    for i in range(folds):
-        rest = [x for x in range(folds) if x != i]
-        # works only for folds = 3
-        # training_data = np.array(data_split)[rest].reshape(-1, np.array(data_split)[rest].shape[-1])
-        training_data = np.append(data_split[rest[0]], data_split[rest[1]], axis=0)
-        # training_labels = np.array(labels_split)[rest].flatten()
-        training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
-        testing_data = data_split[i]
-        testing_labels = labels_split[i]
-        predictions = nb.naive_bayes_gaussian(training_data, training_labels, testing_data)
+    return np.mean(accuracies), np.mean(sklearn_accuracies)
 
-        accuracy = sum(predictions==testing_labels)/len(testing_data)
-        accuracies.append(accuracy)
-        print("my: ", accuracy)
-        clf.fit(training_data, training_labels)
-        accuracy = sum(clf.predict(testing_data)==testing_labels)/len(testing_labels)
-        print("sklearn: ", accuracy)
-
-    print(np.mean(accuracies))
-
-def cross_validation_split(dataset, labels, folds=3):
-    dataset_copy = np.array(dataset)
-    indices = np.random.permutation(np.arange(len(dataset)))
-    dataset_copy = dataset_copy[indices]
-    labels_copy = labels[indices]
-    dataset_split = np.array_split(dataset_copy, folds)
-    labels_split = np.array_split(labels_copy, folds)
-    return dataset_split, labels_split
 
 def accuracy_of_multinomial(dataset, labels):
     folds = 3
-    data_split, labels_split = cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+    data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
     nb = NaiveBayes()
     clf = MultinomialNB(alpha=0.0001, fit_prior=True)
-    accuracies = []
-    for i in range(folds):
-        rest = [x for x in range(folds) if x != i]
-        # works only for folds = 3
-        # training_data = np.array(data_split)[rest].reshape(-1, np.array(data_split)[rest].shape[-1])
-        training_data = np.append(data_split[rest[0]], data_split[rest[1]], axis=0)
-        # training_labels = np.array(labels_split)[rest].flatten()
-        training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
-        testing_data = data_split[i]
-        testing_labels = labels_split[i]
-        predictions = nb.naive_bayes_multinomial(training_data, training_labels, testing_data)
-        accuracy = sum(predictions==testing_labels)/len(testing_data)
-        accuracies.append(accuracy)
-        print("my: ", accuracy)
-        clf.fit(abs(training_data), training_labels)
-        accuracy = sum(clf.predict(abs(testing_data))==testing_labels)/len(testing_data)
-        print("sklearn: ", accuracy)
+
+    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb.naive_bayes_multinomial, sklearn_class=clf)
+    return np.mean(accuracies), np.mean(sklearn_accuracies)
+
 
 def accuracy_for_letters():
     with open('../../../datasets/letter-recognition.data', 'r') as f:
-        dataset, labels = tools.load_text_file(f, first_column_labels=True)
+        dataset, labels = tools.load_text_file(f, first_column_labels=True, labels_numeric=False)
         # iris = load_iris()
         print("Multinomial:")
         accuracy_of_multinomial(dataset,labels)
         print("Gaussian:")
         accuracy_of_gaussian(dataset,labels)
+
 
 def accuracy_for_wines():
     with open('../../../datasets/Wine.csv', 'r') as f:
@@ -117,9 +80,32 @@ def accuracy_for_trees():
         print("Gaussian:")
         accuracy_of_gaussian(dataset, labels)
 
+
+def accuracy_for_cancer():
+    with open('../../../datasets/kag_risk_factors_cervical_cancer.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, dtype=float)
+        labels = np.array(dataset[:,28], dtype=int)
+        dataset=np.append(dataset[:,:28], dataset[:, 29:], axis=1)
+        # iris = load_iris()
+        # labels -= 1
+        print("Multinomial:")
+        accuracy_of_multinomial(dataset, labels)
+        print("Gaussian:")
+        accuracy_of_gaussian(dataset, labels)
+
+def accuracy_for_iris():
+    iris = load_iris()
+    print("Multinomial:")
+    accuracy_of_multinomial(iris.data, iris.target)
+    print("Gaussian:")
+    accuracy_of_gaussian(iris.data, iris.target)
+
+
 if __name__ == "__main__":
     # iris = load_iris()
     # accuracy_of_gaussian(iris.data, iris.target)
     # accuracy_for_letters()
     # accuracy_for_wines()
-    accuracy_for_trees()
+    # accuracy_for_trees()
+    accuracy_for_cancer()
+    # accuracy_for_iris()
