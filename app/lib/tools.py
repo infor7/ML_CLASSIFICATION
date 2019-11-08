@@ -44,7 +44,7 @@ def cross_validation_split(dataset, labels, folds=3):
     return dataset_split, labels_split
 
 
-def accuracy_of_method(data_split, labels_split, training_method, sklearn_class=None):
+def accuracy_of_method(data_split, labels_split, model_class_instance, sklearn_class=None):
     """
     Function for training and testing algorithm on cross split database,
     training_method must have three arguments:
@@ -54,7 +54,7 @@ def accuracy_of_method(data_split, labels_split, training_method, sklearn_class=
 
     :param np.array data_split:
     :param np.array labels_split:
-    :param callable training_method:
+    :param callable model_class_instance:
     :param optional object sklearn_class:
     :return: accuracies, (optional) sklearn_accuracies, for all folds
     """
@@ -70,7 +70,10 @@ def accuracy_of_method(data_split, labels_split, training_method, sklearn_class=
         training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
         testing_data = data_split[i]
         testing_labels = labels_split[i]
-        predictions = training_method(training_data, training_labels, testing_data)
+        model_class_instance.train(training_data, training_labels)
+        predictions = model_class_instance.predict(testing_data)
+        # predictions = model_class_instance.naive_bayes_gaussian(training_data, training_labels, testing_data)
+        # predictions = training_method(training_data, training_labels, testing_data)
         accuracy = sum(predictions==testing_labels)/len(testing_data)
         accuracies.append(accuracy)
         print("my: ", accuracy)

@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-from lib.naive_bayes import NaiveBayes
+from lib.naive_bayes import NaiveBayesGaussian, NaiveBayesMultinomial
 import lib.tools as tools
 from sklearn.datasets import load_iris
 from sklearn.model_selection import cross_val_score
@@ -24,10 +24,10 @@ def execute(ax=None, **kwargs):
 def accuracy_of_gaussian(dataset, labels):
     folds = 3
     data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
-    nb = NaiveBayes()
+    nb = NaiveBayesGaussian()
     accuracies = []
     clf = GaussianNB()
-    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb.naive_bayes_gaussian, sklearn_class=clf)
+    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb, sklearn_class=clf)
     # for i in permutations(range(folds),2):
     #     predictions = nb.naive_bayes(data_split[i[0]], labels_split[i[0]], data_split[i[1]])
     #     accuracy = sum(predictions==labels_split[i[1]])/len(labels_split[i[1]])
@@ -42,10 +42,10 @@ def accuracy_of_gaussian(dataset, labels):
 def accuracy_of_multinomial(dataset, labels):
     folds = 3
     data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
-    nb = NaiveBayes()
+    nb = NaiveBayesMultinomial()
     clf = MultinomialNB(alpha=0.0001, fit_prior=True)
 
-    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb.naive_bayes_multinomial, sklearn_class=clf)
+    accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb, sklearn_class=clf)
     return np.mean(accuracies), np.mean(sklearn_accuracies)
 
 
@@ -104,8 +104,18 @@ def accuracy_for_iris():
 if __name__ == "__main__":
     # iris = load_iris()
     # accuracy_of_gaussian(iris.data, iris.target)
-    # accuracy_for_letters()
-    # accuracy_for_wines()
-    # accuracy_for_trees()
+    print("LETTERS: ")
+    accuracy_for_letters()
+    print()
+    print("WINES: ")
+    accuracy_for_wines()
+    print()
+    print("TREES: ")
+    accuracy_for_trees()
+    print()
+    print("CANCER: ")
     accuracy_for_cancer()
-    # accuracy_for_iris()
+    print()
+    print("IRIS: ")
+    accuracy_for_iris()
+    wait = input("PRESS ENTER TO CONTINUE.")
