@@ -21,28 +21,18 @@ def execute(ax=None, **kwargs):
     return line
 
 
-def accuracy_of_gaussian(dataset, labels):
-    folds = 3
-    data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+def accuracy_of_gaussian(data_split, labels_split):
     nb = NaiveBayesGaussian()
     accuracies = []
     clf = GaussianNB()
     accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb, sklearn_class=clf)
-    # for i in permutations(range(folds),2):
-    #     predictions = nb.naive_bayes(data_split[i[0]], labels_split[i[0]], data_split[i[1]])
-    #     accuracy = sum(predictions==labels_split[i[1]])/len(labels_split[i[1]])
-    #     accuracies.append(accuracy)
-    #     print("my: ", accuracy)
-    #     clf.fit(data_split[i[0]], labels_split[i[0]])
-    #     accuracy = sum(clf.predict(data_split[i[1]])==labels_split[i[1]])/len(labels_split[i[1]])
-    #     print("sklearn: ", accuracy)
     return np.mean(accuracies), np.mean(sklearn_accuracies)
 
 
-def accuracy_of_multinomial(dataset, labels):
-    folds = 3
-    data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
-    nb = NaiveBayesMultinomial()
+def accuracy_of_multinomial(data_split, labels_split, num_of_bins=100):
+    # folds = 3
+    # data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+    nb = NaiveBayesMultinomial(num_of_bins=num_of_bins)
     clf = MultinomialNB(alpha=0.0001, fit_prior=True)
 
     accuracies, sklearn_accuracies = tools.accuracy_of_method(data_split, labels_split, nb, sklearn_class=clf)
@@ -50,55 +40,68 @@ def accuracy_of_multinomial(dataset, labels):
 
 
 def accuracy_for_letters():
-    with open('../../../datasets/letter-recognition.data', 'r') as f:
-        dataset, labels = tools.load_text_file(f, first_column_labels=True, labels_numeric=False)
+    with open('../../data_sources/letter-recognition.data', 'r') as f:
+        dataset, labels = tools.load_text_file(f, label_index=0, labels_numeric=False)
+        folds = 3
+        data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
         # iris = load_iris()
         print("Multinomial:")
-        accuracy_of_multinomial(dataset,labels)
+        accuracy_of_multinomial(data_split,labels_split, num_of_bins=11)
         print("Gaussian:")
-        accuracy_of_gaussian(dataset,labels)
+        accuracy_of_gaussian(data_split,labels_split)
 
 
 def accuracy_for_wines():
-    with open('../../../datasets/Wine.csv', 'r') as f:
-        dataset, labels = tools.load_text_file(f, first_column_labels=True, dtype=float, labels_numeric=True)
+    with open('../../data_sources/Wine.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, label_index=0, dtype=float, labels_numeric=True)
         # iris = load_iris()
-        labels -= 1
+        # labels -= 1
+        folds = 3
+        data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+        # iris = load_iris()
         print("Multinomial:")
-        accuracy_of_multinomial(dataset, labels)
+        accuracy_of_multinomial(data_split,labels_split, num_of_bins=15)
         print("Gaussian:")
-        accuracy_of_gaussian(dataset, labels)
+        accuracy_of_gaussian(data_split,labels_split)
 
 
 def accuracy_for_trees():
-    with open('../../../datasets/covtype.csv', 'r') as f:
-        dataset, labels = tools.load_text_file(f, last_column_labels=True, dtype=float, labels_numeric=True)
+    with open('../../data_sources/covtype.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, label_index=-1, dtype=float, labels_numeric=True)
         # iris = load_iris()
-        labels -= 1
+        # labels -= 1
+        folds = 3
+        data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+        # iris = load_iris()
         print("Multinomial:")
-        accuracy_of_multinomial(dataset, labels)
+        accuracy_of_multinomial(data_split,labels_split)
         print("Gaussian:")
-        accuracy_of_gaussian(dataset, labels)
+        accuracy_of_gaussian(data_split,labels_split)
 
 
 def accuracy_for_cancer():
-    with open('../../../datasets/kag_risk_factors_cervical_cancer.csv', 'r') as f:
-        dataset, labels = tools.load_text_file(f, dtype=float)
-        labels = np.array(dataset[:,28], dtype=int)
-        dataset=np.append(dataset[:,:28], dataset[:, 29:], axis=1)
+    with open('../../data_sources/kag_risk_factors_cervical_cancer.csv', 'r') as f:
+        dataset, labels = tools.load_text_file(f, label_index=28,  dtype=float)
+        # labels = np.array(dataset[:,28], dtype=int)
+        # dataset=np.append(dataset[:,:28], dataset[:, 29:], axis=1)
         # iris = load_iris()
         # labels -= 1
+        folds = 3
+        data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=folds)
+        # iris = load_iris()
         print("Multinomial:")
-        accuracy_of_multinomial(dataset, labels)
+        accuracy_of_multinomial(data_split,labels_split)
         print("Gaussian:")
-        accuracy_of_gaussian(dataset, labels)
+        accuracy_of_gaussian(data_split,labels_split)
 
 def accuracy_for_iris():
     iris = load_iris()
+    folds = 3
+    data_split, labels_split = tools.cross_validation_split(dataset=iris.data, labels=iris.target, folds=folds)
     print("Multinomial:")
-    accuracy_of_multinomial(iris.data, iris.target)
+    accuracy_of_multinomial(data_split, labels_split)
     print("Gaussian:")
-    accuracy_of_gaussian(iris.data, iris.target)
+    accuracy_of_gaussian(data_split, labels_split)
 
 
 if __name__ == "__main__":
@@ -110,9 +113,9 @@ if __name__ == "__main__":
     print("WINES: ")
     accuracy_for_wines()
     print()
-    print("TREES: ")
-    accuracy_for_trees()
-    print()
+    # print("TREES: ")
+    # accuracy_for_trees()
+    # print()
     print("CANCER: ")
     accuracy_for_cancer()
     print()

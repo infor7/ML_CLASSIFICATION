@@ -2,40 +2,40 @@ import numpy as np
 import re
 
 
-def load_text_file(file, first_column_labels=False, last_column_labels=False, dtype=int, labels_numeric=True):
+def load_text_file(file, dtype=int, labels_numeric=True, label_index=None):
     lines = file.readlines()
     num_lines = sum(1 for line in lines)
     no_of_features = len(re.split('[, \t]', lines[1]))
     # first_columb_labels = int(first_columb_labels)
-    if first_column_labels or last_column_labels:
+    if label_index is not None:
         no_of_features -= 1
-    if last_column_labels:
-        labels_ind = -1
-    else:
-        labels_ind = 0
+
     data = np.zeros((num_lines - 1, no_of_features), dtype=dtype)
     labels = np.zeros((num_lines - 1), dtype=int)
     for index, line in enumerate(lines[1:]):
         words = np.array(re.split('[, \t]', line))
         words[words=='?'] = 0
         if len(words) > 1:
-            if first_column_labels:
-                data[index] = np.array(words[1:])
-            elif last_column_labels:
-                data[index] = np.array(words[:-1])
+            if label_index is not None:
+                if label_index == 0:
+                    data[index] = words[label_index + 1:]
+                elif label_index == -1:
+                    data[index] = words[:label_index]
+                else:
+                    data[index] = np.array(np.append(words[:label_index], words[label_index + 1:], axis=0), dtype=float)
+                if not labels_numeric:
+                    labels[index] = ord(words[label_index]) - 65
+                else:
+                    labels[index] = ord(words[label_index][0])
             else:
                 data[index] = np.array(words)
-
-            if not labels_numeric:
-                labels[index] = ord(words[labels_ind])-65
-            else:
-                labels[index] = words[labels_ind]
 
     return data, labels
 
 
 def cross_validation_split(dataset, labels, folds=3):
     dataset_copy = np.array(dataset)
+    labels -= min(labels)
     indices = np.random.permutation(np.arange(len(dataset)))
     dataset_copy = dataset_copy[indices]
     labels_copy = labels[indices]
