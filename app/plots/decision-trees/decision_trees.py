@@ -13,3 +13,11 @@ def execute(ax=None, **kwargs):
 def plot():
     #TODO: plotting results based on default and chosen datasets
     pass
+
+
+if __name__ == "__main__":
+    # Dunno why yet. Just to be able to execute as main
+    fig, [plot1, plot2] = plt.subplots(nrows=2)
+    execute(plot1)
+    execute(plot2)
+    plt.show()

@@ -54,4 +54,73 @@
             </y_label>
 		</PARAMETERS>
 	</PLOT>
+    <PLOT>
+        <TITLE>
+            Naive bayes - datasets comparison
+        </TITLE>
+        <SCRIPT_PATH>
+            plots/Bayes/naive_bayes.py
+        </SCRIPT_PATH>
+        <PARAMETERS>
+            <x_label>
+                Dataset and method
+            </x_label>
+            <y_label>
+                Accuracy
+            </y_label>
+        </PARAMETERS>
+    </PLOT>
+    <DATASET>
+        <name>
+            Wines
+        </name>
+        <path>
+            data_sources/Wine.csv
+        </path>
+        <label_index>
+            0
+        </label_index>
+        <dtype>
+            float
+        </dtype>
+        <labels_numeric>
+            True
+        </labels_numeric>
+    </DATASET>
+    <DATASET>
+        <name>
+            Letters
+        </name>
+        <path>
+            data_sources/letter-recognition.data
+        </path>
+        <label_index>
+            0
+        </label_index>
+        <labels_numeric>
+            False
+        </labels_numeric>
+    </DATASET>
+    <DATASET>
+        <name>
+            Cancer
+        </name>
+        <path>
+            data_sources/kag_risk_factors_cervical_cancer.csv
+        </path>
+        <label_index>
+            28
+        </label_index>
+    </DATASET>
+    <DATASET>
+        <name>
+            Trees
+        </name>
+        <path>
+            data_sources/covtype.csv
+        </path>
+        <label_index>
+            -1
+        </label_index>
+    </DATASET>
 </APP_CONFIG>
