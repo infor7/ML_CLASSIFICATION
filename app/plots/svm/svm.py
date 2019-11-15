@@ -7,6 +7,182 @@ from sklearn.metrics import confusion_matrix
 from sklearn.svm import LinearSVC
 from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digits
 import itertools as it
+from collections import Counter
+from sklearn.decomposition import PCA
+
+
+def two_to_two_example():
+    classifier = LinearSVM()
+    X_train, X_test, y_train, y_test = generate_data()
+    classifier.training_model(X_train, y_train)
+
+    a0 = -4
+    b0 = 4
+
+    # Boundary
+    a1 = boundaries(a0, classifier.w, classifier.b)
+    b1 = boundaries(b0, classifier.w, classifier.b)
+    plt.plot([a0, b0], [a1, b1], 'k')
+
+    # First support vector
+    a1 = boundaries(a0, classifier.w, classifier.b, 1)
+    b1 = boundaries(b0, classifier.w, classifier.b, 1)
+    plt.plot([a0, b0], [a1, b1], 'k--')
+
+    # Second support vector
+    a1 = boundaries(a0, classifier.w, classifier.b, -1)
+    b1 = boundaries(b0, classifier.w, classifier.b, -1)
+    plt.plot([a0, b0], [a1, b1], 'k--')
+
+    # Plot training data
+    plt.scatter(X_train[:, 0], X_train[:, 1], c=y_train, cmap='winter')
+
+    # Predict values
+    y_predict = classifier.predict(X_test)
+
+    out = confusion_matrix(y_test, y_predict)
+    print('Good predictions 1 class - ' + str(out[1][1]))
+    print('Bad predictions 1 class - ' + str(out[0][1]))
+    print('Good predictions -1 class - ' + str(out[0][0]))
+    print('Bad predictions -1 class - ' + str(out[1][0]))
+
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='summer')
+
+    plt.show()
+
+
+def dimentionality_reduction_example():
+    # Load dataset
+    dataset = load_iris()
+
+    # Prepare data
+    labels = dataset.target
+    features = dataset.data
+    list_labels = np.unique(labels)
+    nu_labels = len(list_labels)
+    nu_features = len(features[0])
+    print('This dataset has ' + str(nu_features) + ' features and ' + str(nu_labels) + ' labels')
+
+    # Perform dimentionality reduction - reduce number of features to 2
+    # WARNING! With lots of features it's useless!
+    features_reduced = PCA(n_components=2).fit_transform(features)
+    # print(X_reduced)
+    features = features_reduced
+    nu_features = len(features[0])
+
+    # Divide data into train and test
+    features, features_test, labels, labels_test = train_test_split(features, labels, random_state=0)
+
+    # Create classifier
+    classifier = LinearSVM()
+
+    # Create list of all combinations of feature pairs
+    list_features = np.array(range(nu_features))
+    features_pairs = list(it.combinations(list_features, 2))
+    # print(features_pairs)
+
+    # Create list of all combinations of labels pairs
+    labels_pairs = list(it.combinations(list_labels, 2))
+    # print(labels_pairs)
+
+    plt.figure()
+
+    # Determine subplot grid
+    if nu_features % 2 == 0:
+        columns = nu_features / 2
+        rows = len(features_pairs) / columns
+    elif nu_features % 2 == 1:
+        columns = (nu_features - 1) / 2
+        rows = len(features_pairs) / columns
+
+    # Try also permutations of combinations
+    # r_combinations = [reverse(t) for t in features_pairs]
+    # print(r_combinations)
+    # f_pairs_extended = features_pairs + r_combinations
+    # print(f_pairs_extended)
+    # features_pairs = f_pairs_extended
+
+    result = []
+
+    # For every combination of features
+    for pair_f in features_pairs:
+        # Determine proper subplot to plot on
+        index = features_pairs.index(pair_f)
+        title = 'Features ' + str(pair_f)
+        plt.subplot(rows, columns, index + 1)            #.set_aspect('equal')
+        #plt.xlim(min(features[:, pair_f[0]]) - 0.5, max(features[:, pair_f[0]]) + 0.5)
+        #plt.ylim(min(features[:, pair_f[1]]) - 0.5, max(features[:, pair_f[1]]) + 0.5)
+        plt.title(title)
+
+        # Plot data points
+        plt.scatter(features[:, pair_f[0]], features[:, pair_f[1]], c=labels, cmap='summer')
+
+
+        counter = 0
+        # For every combination of labels
+        for pair_l in labels_pairs:
+            # print(pair_l)
+            # Prepare feature array for given label pair
+            feat = features[(labels == pair_l[0]) | (labels == pair_l[1])]
+
+            # Approach one-vs-therest
+            #feat = features
+            #lab = labels
+            #lab = np.where(lab == counter, -1, lab)
+            #lab = np.where((lab != counter) & (lab != -1), 1, lab)
+
+            # Prepare label array for given label pair
+            lab = labels[(labels == pair_l[0]) | (labels == pair_l[1])]
+            lab = np.where(lab == pair_l[0], -1, lab)
+            lab = np.where(lab == pair_l[1], 1, lab)
+            tmp = np.ones(len(feat))
+            lab = tmp * lab
+
+            # Calculate range of boundary lines on x axis
+            a0 = min(feat[:, pair_f[0]])
+            b0 = max(feat[:, pair_f[0]])
+
+            # List of currently unused labels
+            # unused_labels = list_labels[(list_labels != pair_l[0]) & (list_labels != pair_l[1])]
+            # print(unused_labels)
+
+            # Run classifier
+            classifier.training_model(feat[:, [pair_f[0], pair_f[1]]], lab)
+
+            # Check if classification worked (how many values were assigned correctly)
+            labels_predicted = classifier.predict(features_test[:, [pair_f[0], pair_f[1]]])
+            labels_predicted = np.where(labels_predicted == 1, pair_l[1], labels_predicted)
+            labels_predicted = np.where(labels_predicted == -1, pair_l[0], labels_predicted)
+            # print(labels_test)
+            # print(labels_predicted)
+            result.append(list(labels_predicted))
+
+            # out = confusion_matrix(labels_test, labels_predicted)
+            # accuracy = (out[1][1] + out[0][0]) / (out[1][1] + out[0][0] + out[1][0] + out[0][1])
+            # print(accuracy)
+            # if accuracy > 0.5:
+
+            plot_boundaries(a0, b0, classifier.w, classifier.b)
+            counter = counter + 1
+
+    plt.show()
+    # print(len(result[0]))
+    # result = [list(i) for i in result]
+    print(result[0])
+    print(result[1])
+    print(result[2])
+
+    final = [most_common([item[i] for item in result]) for i in range(len(result[0]))]
+    print(final)
+
+    out = confusion_matrix(labels_test, final)
+    print(out)
+    print('Result')
+    for i in range(len(out[0])):
+        print("Good predictions of " + str(i) + ' class - ' + str(out[i][i]))
+        out[i][i] = 0
+        print("Bad predictions of " + str(i) + ' class - ' + str(sum(out[i])))
+
 
 
 def execute(ax=None, **kwargs):
@@ -58,17 +234,22 @@ def plot_features(features, labels):
                 plt.scatter(features[:, i], features[:, j], c=labels)
     plt.show()
 
-def Reverse(tuples):
+
+def reverse(tuples):
     new_tup = ()
     for k in reversed(tuples):
         new_tup = new_tup + (k,)
     return new_tup
 
 
+def most_common(lst):
+    data = Counter(lst)
+    return max(lst, key=data.get)
+
+
 class LinearSVM:
     def __init__(self):
-        # nothing so far
-        awesomness = 100
+        self.C = 1
 
     def training_model(self, X, y):
         n_samples, n_features = X.shape
@@ -88,9 +269,17 @@ class LinearSVM:
         # b = 0
         b = cvxopt.matrix(0.0)
         # -1 (NxN)
-        G = cvxopt.matrix(np.diag(np.ones(n_samples) * -1))
+        # G = cvxopt.matrix(np.diag(np.ones(n_samples) * -1))
         # 0 (1xN)
-        h = cvxopt.matrix(np.zeros(n_samples))
+        # h = cvxopt.matrix(np.zeros(n_samples))
+
+        # G and h for C
+        tmp1 = np.diag(np.ones(n_samples) * -1)
+        tmp2 = np.identity(n_samples)
+        G = cvxopt.matrix(np.vstack((tmp1, tmp2)))
+        tmp1 = np.zeros(n_samples)
+        tmp2 = np.ones(n_samples) * self.C
+        h = cvxopt.matrix(np.hstack((tmp1, tmp2)))
 
         # Silent solvers output
         cvxopt.solvers.options['show_progress'] = False
@@ -132,110 +321,7 @@ if __name__ == "__main__":
     # execute(plot2)
     # plt.show()
 
-    # Load dataset
-    dataset = load_iris()
-
-    # Prepare data
-    labels = dataset.target
-    features = dataset.data
-    list_labels = np.unique(labels)
-    nu_labels = len(list_labels)
-    nu_features = len(features[0])
-    print('This dataset has ' + str(nu_features) + ' features and ' + str(nu_labels) + ' labels')
-
-
-    """
-    svc = LinearSVC()
-    svc.fit(fe, la)
-    plt.scatter(fe[:, 0], fe[:, 1], c=la, cmap='winter');
-    ax = plt.gca()
-    xlim = ax.get_xlim()
-    w = svc.coef_[0]
-    a = -w[0] / w[1]
-    xx = np.linspace(xlim[0], xlim[1])
-    yy = a * xx - svc.intercept_[0] / w[1]
-    plt.plot(xx, yy)
-    yy = a * xx - (svc.intercept_[0] - 1) / w[1]
-    plt.plot(xx, yy, 'k--')
-    yy = a * xx - (svc.intercept_[0] + 1) / w[1]
-    plt.plot(xx, yy, 'k--')
-    """
-
-    # Create classifier
-    classifier = LinearSVM()
-
-    # Create list of all combinations of feature pairs
-    list_features = np.array(range(nu_features))
-    features_pairs = list(it.combinations(list_features, 2))
-    # print(features_pairs)
-
-    # Create list of all combinations of labels pairs
-    labels_pairs = list(it.combinations(list_labels, 2))
-    # print(labels_pairs)
-
-    plt.figure()
-
-    # Determine subplot grid
-    if nu_features % 2 == 0:
-        columns = nu_features / 2
-        rows = len(features_pairs) / columns * 2
-    elif nu_features % 2 == 1:
-        columns = (nu_features - 1) / 2
-        rows = len(features_pairs) / columns * 2
-
-    # Try also permutations of combinations
-    r_combinations = [Reverse(t) for t in features_pairs]
-    # print(r_combinations)
-    f_pairs_extended = features_pairs + r_combinations
-    # print(f_pairs_extended)
-    features_pairs = f_pairs_extended
-
-    # For every combination of features
-    for pair_f in features_pairs:
-        # Determine proper subplot to plot on
-        index = features_pairs.index(pair_f)
-        title = 'Features ' + str(pair_f)
-        plt.subplot(rows, columns, index + 1)
-        plt.title(title)
-
-        # Plot data points
-        plt.scatter(features[:, pair_f[0]], features[:, pair_f[1]], c=labels, cmap='summer')
-
-        # For every combination of labels
-        for pair_l in labels_pairs:
-            # print(pair_l)
-            # Prepare feature array for given label pair
-            feat = features[(labels == pair_l[0]) | (labels == pair_l[1])]
-
-            # Prepare label array for given label pair
-            lab = labels[(labels == pair_l[0]) | (labels == pair_l[1])]
-            lab = np.where(lab == pair_l[0], -1, lab)
-            lab = np.where(lab == pair_l[1], 1, lab)
-            tmp = np.ones(len(feat))
-            lab = tmp * lab
-
-            # Calculate range of boundary lines on x axis
-            a0 = min(feat[:, pair_f[0]])
-            b0 = max(feat[:, pair_f[0]])
-
-            # Run classifier
-            classifier.training_model(feat[:, [pair_f[0], pair_f[1]]], lab)
-
-            # Check if classification worked (how many values were assigned correctly)
-            check = classifier.predict(feat[:, [pair_f[0], pair_f[1]]])
-            out = confusion_matrix(lab, check)
-            accuracy = (out[1][1] + out[0][0]) / (out[1][1] + out[0][0] + out[1][0] + out[0][1])
-            # print(accuracy)
-            if accuracy > 0.5:
-                plot_boundaries(a0, b0, classifier.w, classifier.b)
-            print('Result for ' + str([pair_f[0], pair_f[1]]))
-            print('Good predictions 1 class - ' + str(out[1][1]))
-            print('Bad predictions 1 class - ' + str(out[0][1]))
-            print('Good predictions -1 class - ' + str(out[0][0]))
-            print('Bad predictions -1 class - ' + str(out[1][0]))
-
-    plt.show()
-
+    dimentionality_reduction_example()
 
 
 
