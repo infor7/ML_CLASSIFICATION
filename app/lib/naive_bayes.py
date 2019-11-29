@@ -3,7 +3,7 @@ import random
 
 
 class NaiveBayesGaussian(object):
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.summary = []
 
     def train(self, train_data, train_labels):
@@ -59,11 +59,17 @@ class NaiveBayesGaussian(object):
 
 
 class NaiveBayesMultinomial(object):
-    def __init__(self, alpha=0.0001, num_of_bins=100):
+    def __init__(self, **kwargs):
         self.hist_bins = list()
         self.summary_of_prob = list()
-        self.alpha = alpha
-        self.num_of_bins = num_of_bins
+        if kwargs.get('alpha'):
+            self.alpha = kwargs['alpha']
+        else:
+            self.alpha = 0.0001
+        if kwargs.get('num_of_bins'):
+            self.num_of_bins = kwargs['num_of_bins']
+        else:
+            self.num_of_bins = 100
 
     def train(self, train_data, train_labels):
         dataset_classed = self.split_by_class(train_data, train_labels)

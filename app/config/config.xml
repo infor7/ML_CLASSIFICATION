@@ -70,6 +70,20 @@
             </y_label>
         </PARAMETERS>
     </PLOT>
+    <METHOD>
+        <NAME>
+            NB_Gaussian
+        </NAME>
+        <PATH>
+            lib/naive_bayes.py
+        </PATH>
+        <CLASS>
+            NaiveBayesGaussian
+        </CLASS>
+    </METHOD>
+</APP_CONFIG>
+
+<!--
     <DATASET>
         <name>
             Wines
@@ -114,6 +128,17 @@
     </DATASET>
     <DATASET>
         <name>
+            Iris
+        </name>
+        <path>
+            load_iris
+        </path>
+        <type>
+            sklearn
+        </type>
+    </DATASET>
+<DATASET>
+        <name>
             Trees
         </name>
         <path>
@@ -122,5 +147,4 @@
         <label_index>
             -1
         </label_index>
-    </DATASET>
-</APP_CONFIG>
+    </DATASET>-->

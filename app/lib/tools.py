@@ -76,11 +76,11 @@ def accuracy_of_method(data_split, labels_split, model_class_instance, sklearn_c
         # predictions = training_method(training_data, training_labels, testing_data)
         accuracy = sum(predictions==testing_labels)/len(testing_data)
         accuracies.append(accuracy)
-        print("my: ", accuracy)
+        # print("my: ", accuracy)
         if sklearn_class is not None:
             sklearn_class.fit(abs(training_data), training_labels)
             accuracy = sum(sklearn_class.predict(abs(testing_data))==testing_labels)/len(testing_data)
-            print("sklearn: ", accuracy)
+            # print("sklearn: ", accuracy)
             sklearn_accuracies.append(accuracy)
     return accuracies, sklearn_accuracies
 
