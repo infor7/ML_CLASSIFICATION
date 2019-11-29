@@ -129,6 +129,9 @@
         <name>
             load_iris
         </name>
+        <type>
+            sklearn
+        </type>
     </DATASET>
     <DATASET>
         <label>
@@ -140,6 +143,9 @@
         <name>
             load_wine
         </name>
+        <type>
+            sklearn
+        </type>
     </DATASET>
     <DATASET>
         <label>
@@ -151,6 +157,9 @@
         <name>
             load_breast_cancer
         </name>
+        <type>
+            sklearn
+        </type>
     </DATASET>
     <DATASET>
         <label>
@@ -162,7 +171,21 @@
         <name>
             load_digits
         </name>
+        <type>
+            sklearn
+        </type>
     </DATASET>
+    <!--<DATASET>
+        <name>
+            Trees
+        </name>
+        <path>
+            data_sources/covtype.csv
+        </path>
+        <label_index>
+            -1
+        </label_index>
+    </DATASET>-->
 </APP_CONFIG>
 
 <!--
@@ -208,25 +231,4 @@
             28
         </label_index>
     </DATASET>
-    <DATASET>
-        <name>
-            Iris
-        </name>
-        <path>
-            load_iris
-        </path>
-        <type>
-            sklearn
-        </type>
-    </DATASET>
-<DATASET>
-        <name>
-            Trees
-        </name>
-        <path>
-            data_sources/covtype.csv
-        </path>
-        <label_index>
-            -1
-        </label_index>
-    </DATASET>-->
+-->

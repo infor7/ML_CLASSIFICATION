@@ -53,36 +53,30 @@ class PlotML():
         accuracies, dataset_names = self.generate_all_accuracies(algorithm_list, accuracy_labels, algorithm_kwargs)
         self.plot_general_plot(accuracies, accuracy_labels, dataset_names)
 
-            # else:
-            #     with open(item['path'], 'r') as f:
-            #         if item.get('dtype') is None:
-            #             item['dtype'] = int
-            #         if item.get('label_index') is None:
-            #             item['label_index'] = None
-            #         else:
-            #             item['label_index'] = int(item['label_index'])
-            #         if item.get('labels_numeric') is None:
-            #             item['labels_numeric'] = True
-            #         datasets_names.append(item['name'])
-            #         dataset, labels = tools.load_text_file(f, label_index=item['label_index'], dtype=item['dtype'],
-            #                                                labels_numeric=bool(item['labels_numeric']))
-            #         data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=3)
-            #         print("Multinomial:")
-            #         acc_my, acc_skl = nb.accuracy_of_multinomial(data_split, labels_split)
-            #         accuracies[0, index] = np.mean(acc_my)
-            #         accuracies[1, index] = np.mean(acc_skl)
-            #         print("Gaussian:")
-            #         acc_my, acc_skl = nb.accuracy_of_gaussian(data_split, labels_split)
-            #         accuracies[2, index] = np.mean(acc_my)
-            #         accuracies[3, index] = np.mean(acc_skl)
+        # else:
+        #     with open(item['path'], 'r') as f:
+        #         if item.get('dtype') is None:
+        #             item['dtype'] = int
+        #         if item.get('label_index') is None:
+        #             item['label_index'] = None
+        #         else:
+        #             item['label_index'] = int(item['label_index'])
+        #         if item.get('labels_numeric') is None:
+        #             item['labels_numeric'] = True
+        #         datasets_names.append(item['name'])
+        #         dataset, labels = tools.load_text_file(f, label_index=item['label_index'], dtype=item['dtype'],
+        #                                                labels_numeric=bool(item['labels_numeric']))
+        #         data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=3)
+        #         print("Multinomial:")
+        #         acc_my, acc_skl = nb.accuracy_of_multinomial(data_split, labels_split)
+        #         accuracies[0, index] = np.mean(acc_my)
+        #         accuracies[1, index] = np.mean(acc_skl)
+        #         print("Gaussian:")
+        #         acc_my, acc_skl = nb.accuracy_of_gaussian(data_split, labels_split)
+        #         accuracies[2, index] = np.mean(acc_my)
+        #         accuracies[3, index] = np.mean(acc_skl)
 
     def generate_all_accuracies(self, algorithms_list, accuracy_labels, algorithms_kwargs):
-        # from lib.naive_bayes import NaiveBayesGaussian, NaiveBayesMultinomial
-        # from sklearn.naive_bayes import GaussianNB, MultinomialNB
-        # algorithms_list = [NaiveBayesGaussian, NaiveBayesMultinomial]
-        # sklearn_list = [GaussianNB, MultinomialNB]
-        # accuracy_labels = ["Gaussian", "Gaussian-sk", "Multinomial", "Multinomial-sk"]
-        # sklearn_kwargs = [{}, {'alpha':0.0001, 'fit_prior':True}]
         accuracies, dataset_names = self.run_for_all_datasets(algorithms_list, algorithms_kwargs)
         return accuracies, dataset_names
 
@@ -106,39 +100,34 @@ class PlotML():
         accuracies = np.zeros([len(datasets), len(algorithm_classes)])
         datasets_names = []
         for index, item in enumerate(datasets):
-            mod = __import__(self.convert_from_path_to_module(item['path']), fromlist=[item["name"]])
-            klass = getattr(mod, item["name"])
-            dataset = klass()
-            accuracies[index] = self.accuracies_of_different_methods(dataset.data, dataset.target, algorithm_classes,
-                                                                 algorithm_kwargs)
-            datasets_names.append(item["label"])
+            if item.get("label") is not None:
+                datasets_names.append(item["label"])
+                print("Dataset: ", item.get("label"))
+            else:
+                datasets_names.append(item["name"])
+                print("Dataset: ", item.get("name"))
+            if item.get("type") == "sklearn":
+                mod = __import__(self.convert_from_path_to_module(item['path']), fromlist=[item["name"]])
+                klass = getattr(mod, item["name"])
+                dataset = klass()
+                accuracies[index] = self.accuracies_of_different_methods(dataset.data, dataset.target,
+                                                                         algorithm_classes,
+                                                                         algorithm_kwargs)
+            else:
+                with open(item['path'], 'r') as f:
+                    if item.get('dtype') is None:
+                        item['dtype'] = int
+                    if item.get('label_index') is None:
+                        item['label_index'] = None
+                    else:
+                        item['label_index'] = int(item['label_index'])
+                    if item.get('labels_numeric') is None:
+                        item['labels_numeric'] = True
+                    dataset, labels = tools.load_text_file(f, label_index=item['label_index'], dtype=item['dtype'],
+                                                           labels_numeric=bool(item['labels_numeric']))
+                    accuracies[index] = self.accuracies_of_different_methods(dataset, labels, algorithm_classes,
+                                                                             algorithm_kwargs)
         return accuracies, datasets_names
-
-    def run_for_sklearn_datasets(self, algorithm_classes, algorithm_kwargs, sklearn_classes, sklearn_kwargs):
-        """
-        Loads predefined sklear datasets and calculate accuracies of all different algorithms, which are provided in two lists
-
-        :param list algorithm_classes: list of unintialized algorithms classes
-        :param list sklearn_classes: list of unintialized sklearn classes
-        :return:
-        """
-        from sklearn.datasets import load_iris, load_digits, load_breast_cancer, load_wine
-        accuracies = np.zeros([4, 2 * len(algorithm_classes)])
-        dataset = load_iris()
-        accuracies[0] = self.accuracies_of_different_methods(dataset.data, dataset.target, algorithm_classes,
-                                                             algorithm_kwargs, sklearn_classes, sklearn_kwargs)
-        dataset = load_digits()
-        accuracies[1] = self.accuracies_of_different_methods(dataset.data, dataset.target, algorithm_classes,
-                                                             algorithm_kwargs, sklearn_classes, sklearn_kwargs)
-        dataset = load_breast_cancer()
-        accuracies[2] = self.accuracies_of_different_methods(dataset.data, dataset.target, algorithm_classes,
-                                                             algorithm_kwargs, sklearn_classes, sklearn_kwargs)
-        dataset = load_wine()
-        accuracies[3] = self.accuracies_of_different_methods(dataset.data, dataset.target, algorithm_classes,
-                                                             algorithm_kwargs, sklearn_classes, sklearn_kwargs)
-
-        dataset_names = ["Iris", "Digits", "Cancer", "Wines"]
-        return accuracies, dataset_names
 
     def accuracies_of_different_methods(self, dataset, labels, algorithm_classes, algorithm_kwargs):
         """
@@ -152,7 +141,7 @@ class PlotML():
         :param algorithm_kwargs:
         :return:
         """
-        data_split, labels_split = tools.cross_validation_split(dataset=dataset, labels=labels, folds=3)
+        data_split, labels_split = tools.cross_validation_split(dataset=abs(dataset), labels=labels, folds=3)
         accuracies_for_dataset = np.zeros(len(algorithm_classes))
         for index, algorithm in enumerate(algorithm_classes):
             alg = algorithm(**algorithm_kwargs[index])
