@@ -6,7 +6,7 @@ class NaiveBayesGaussian(object):
     def __init__(self, **kwargs):
         self.summary = []
 
-    def train(self, train_data, train_labels):
+    def fit(self, train_data, train_labels):
         self.summary = []
         self.summary = self.gaussian_calculate_summaries(train_data, train_labels)
 
@@ -71,7 +71,7 @@ class NaiveBayesMultinomial(object):
         else:
             self.num_of_bins = 100
 
-    def train(self, train_data, train_labels):
+    def fit(self, train_data, train_labels):
         dataset_classed = self.split_by_class(train_data, train_labels)
         hist_bins_min = [np.min(train_data[:, num_feature]) for num_feature in range(len(train_data[0]))]
         hist_bins_max = [np.max(train_data[:, num_feature]) for num_feature in range(len(train_data[0]))]
