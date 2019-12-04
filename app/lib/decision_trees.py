@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from tree_node import Node
@@ -7,9 +8,48 @@ from tree_node import Node
 
 class DecisionTree():
     
-    def create_tree(self, targets, data, metric = "Gini", class_names = None):
+    def __init__(self, targets, data, class_names = None, metric = "Gini", max_level = 10, min_split = 2, min_members = 1):
+        self.targets = targets
+        self.data = data
+        self.class_names = class_names
+        
+        if metric is "Gini":
+            self.metric = metric
+        elif metric is "Entropy":
+            self.metric = metric
+        else:
+            self.metric = "Gini" # def metric just in case
+        self.max_level = max_level
+        self.min_split = min_split
+        self.min_members = min_members
+
+        self.root = self.spawn_node(self.targets, self.data, self.metric, level = 0)
         pass
 
+
+
+    def fit_id3(self):
+        pass
+
+
+    def fit_cart(self):
+        pass
+
+
+    def predict(self):
+        pass
+
+    def test_accuracy(self, targets, data):
+        pass
+    
+     
+    def spawn_node(self, targets, data, metric, class_names = None, level = 0,):
+        return Node(targets,data,level, metric, class_names)
+
+
+    def check_final(self, node):
+        pass
+    
 
 # class DecisionTree():
 #     def fit(self):
