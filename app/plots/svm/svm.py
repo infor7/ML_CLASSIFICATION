@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.datasets.samples_generator import make_blobs
 from sklearn.model_selection import train_test_split
 import cvxopt
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, accuracy_score
 from sklearn.svm import LinearSVC
 from sklearn.datasets import load_iris, load_wine, load_breast_cancer, load_digits
 import itertools as it
@@ -15,6 +15,10 @@ def two_to_two_example():
     classifier = LinearSVM()
     X_train, X_test, y_train, y_test = generate_data()
     classifier.training_model(X_train, y_train)
+
+    plt.xlim(-1, 4)
+    #plt.ylim(1, 5)
+    plt.title("SVM - example")
 
     a0 = -4
     b0 = 4
@@ -46,7 +50,7 @@ def two_to_two_example():
     print('Good predictions -1 class - ' + str(out[0][0]))
     print('Bad predictions -1 class - ' + str(out[1][0]))
 
-    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='summer')
+    plt.scatter(X_test[:, 0], X_test[:, 1], c=y_test, cmap='summer')\
 
     plt.show()
 
@@ -54,6 +58,9 @@ def two_to_two_example():
 def dimentionality_reduction_example():
     # Load dataset
     dataset = load_iris()
+    print(dataset.target)
+    print(len(dataset.target))
+    print(len(dataset.data[0]))
 
     # Prepare data
     labels = dataset.target
@@ -65,10 +72,10 @@ def dimentionality_reduction_example():
 
     # Perform dimentionality reduction - reduce number of features to 2
     # WARNING! With lots of features it's useless!
-    features_reduced = PCA(n_components=2).fit_transform(features)
+    # features_reduced = PCA(n_components=2).fit_transform(features)
     # print(X_reduced)
-    features = features_reduced
-    nu_features = len(features[0])
+    # features = features_reduced
+    # nu_features = len(features[0])
 
     # Divide data into train and test
     features, features_test, labels, labels_test = train_test_split(features, labels, random_state=0)
@@ -79,46 +86,53 @@ def dimentionality_reduction_example():
     # Create list of all combinations of feature pairs
     list_features = np.array(range(nu_features))
     features_pairs = list(it.combinations(list_features, 2))
-    # print(features_pairs)
+
+    # features_pairs = features_pairs[0::5]
+
+    print(features_pairs)
+    print(len(features_pairs))
 
     # Create list of all combinations of labels pairs
     labels_pairs = list(it.combinations(list_labels, 2))
+    print(labels_pairs)
+    print(len(labels_pairs))
+
+    # if there is to much labels (to long calculations) you can take only pairs
+    # labels_pairs = [(i, i+1) for i in range(nu_labels-1)]
     # print(labels_pairs)
+    # plt.figure()
 
-    plt.figure()
-
+    # labels_pairs = [(0, 1), (1, 2), (2, 3), (3, 4), (4, 5), (5, 6), (7, 8), (8, 9), (0, 9)]
+    '''
     # Determine subplot grid
     if nu_features % 2 == 0:
         columns = nu_features / 2
-        rows = len(features_pairs) / columns
     elif nu_features % 2 == 1:
         columns = (nu_features - 1) / 2
-        rows = len(features_pairs) / columns
-
-    # Try also permutations of combinations
-    # r_combinations = [reverse(t) for t in features_pairs]
-    # print(r_combinations)
-    # f_pairs_extended = features_pairs + r_combinations
-    # print(f_pairs_extended)
+    rows = len(features_pairs) / columns
     # features_pairs = f_pairs_extended
-
+    '''
+    
     result = []
 
+    counter = 0
     # For every combination of features
     for pair_f in features_pairs:
+        print(counter)
         # Determine proper subplot to plot on
-        index = features_pairs.index(pair_f)
+        # index = features_pairs.index(pair_f)
+
+        # Configure plots
+        '''
         title = 'Features ' + str(pair_f)
         plt.subplot(rows, columns, index + 1)            #.set_aspect('equal')
-        #plt.xlim(min(features[:, pair_f[0]]) - 0.5, max(features[:, pair_f[0]]) + 0.5)
-        #plt.ylim(min(features[:, pair_f[1]]) - 0.5, max(features[:, pair_f[1]]) + 0.5)
+        plt.xlim(min(features[:, pair_f[0]]) - 0.5, max(features[:, pair_f[0]]) + 0.5)
+        plt.ylim(min(features[:, pair_f[1]]) - 0.5, max(features[:, pair_f[1]]) + 0.5)
         plt.title(title)
 
         # Plot data points
         plt.scatter(features[:, pair_f[0]], features[:, pair_f[1]], c=labels, cmap='summer')
-
-
-        counter = 0
+        '''
         # For every combination of labels
         for pair_l in labels_pairs:
             # print(pair_l)
@@ -139,8 +153,8 @@ def dimentionality_reduction_example():
             lab = tmp * lab
 
             # Calculate range of boundary lines on x axis
-            a0 = min(feat[:, pair_f[0]])
-            b0 = max(feat[:, pair_f[0]])
+            # a0 = min(feat[:, pair_f[0]])
+            # b0 = max(feat[:, pair_f[0]])
 
             # List of currently unused labels
             # unused_labels = list_labels[(list_labels != pair_l[0]) & (list_labels != pair_l[1])]
@@ -149,7 +163,7 @@ def dimentionality_reduction_example():
             # Run classifier
             classifier.training_model(feat[:, [pair_f[0], pair_f[1]]], lab)
 
-            # Check if classification worked (how many values were assigned correctly)
+            # Manage classification results
             labels_predicted = classifier.predict(features_test[:, [pair_f[0], pair_f[1]]])
             labels_predicted = np.where(labels_predicted == 1, pair_l[1], labels_predicted)
             labels_predicted = np.where(labels_predicted == -1, pair_l[0], labels_predicted)
@@ -157,23 +171,20 @@ def dimentionality_reduction_example():
             # print(labels_predicted)
             result.append(list(labels_predicted))
 
+            # Check if classification worked (how many values were assigned correctly)
             # out = confusion_matrix(labels_test, labels_predicted)
             # accuracy = (out[1][1] + out[0][0]) / (out[1][1] + out[0][0] + out[1][0] + out[0][1])
             # print(accuracy)
             # if accuracy > 0.5:
 
-            plot_boundaries(a0, b0, classifier.w, classifier.b)
-            counter = counter + 1
+            # plot_boundaries(a0, b0, classifier.w, classifier.b)
+        counter = counter + 1
 
-    plt.show()
-    # print(len(result[0]))
-    # result = [list(i) for i in result]
-    print(result[0])
-    print(result[1])
-    print(result[2])
+    # plt.show()
 
+    # Calculate final result - the most common classification for each data point
     final = [most_common([item[i] for item in result]) for i in range(len(result[0]))]
-    print(final)
+    # print(final)
 
     out = confusion_matrix(labels_test, final)
     print(out)
@@ -182,6 +193,18 @@ def dimentionality_reduction_example():
         print("Good predictions of " + str(i) + ' class - ' + str(out[i][i]))
         out[i][i] = 0
         print("Bad predictions of " + str(i) + ' class - ' + str(sum(out[i])))
+    acc = accuracy_score(labels_test, final)
+    print("Accuracy = " + str(acc))
+
+    # Sklearn approach
+
+    svc = LinearSVC()
+    svc.fit(features, labels)
+    y_pred = svc.predict(features_test)
+    print(confusion_matrix(labels_test, y_pred))
+    acc = accuracy_score(labels_test, y_pred)
+    print("Accuracy = " + str(acc))
+
 
 
 
@@ -323,12 +346,7 @@ if __name__ == "__main__":
 
     dimentionality_reduction_example()
 
-
-
-
-
-
-
+    #two_to_two_example()
 
 
     '''
@@ -344,7 +362,6 @@ if __name__ == "__main__":
     print(confusion_matrix(y_test, y_pred))
     # 
     '''
-    # plot_boundaries(classifier.w, classifier.b)
 
     '''
     # Predict values
