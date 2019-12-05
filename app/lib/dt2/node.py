@@ -3,9 +3,11 @@ import numpy as np
 
 class Node:
     """ Node/Leaf for Decision Tree"""
-    def __init__(self, target, data):
+    def __init__(self, target, data, depth = 0, t_children = None, f_children = None):
         self.target = target
         self.data = data
+        self.t_children = t_children
+        self.f_children = f_children
         self.leaf = False
         self.assign_class()
         pass
@@ -19,6 +21,11 @@ class Node:
         self.classes, self.classes_count = np.unique(self.target, return_counts = True)
         self.count = self.classes_count.sum()
         self.result = self.classes[self.classes_count.argmax()]
+
+
+    def set_splitter(self, feature, value):
+        self.split_feature = feature
+        self.split_value = value
 
 
     @staticmethod

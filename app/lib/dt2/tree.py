@@ -21,7 +21,7 @@ from node import Node
 
 
 class Tree:
-    def __init__(self, target, data, metric = "gini", max_depth = 10, min_split = 2, min_members = 1, min_gain = 0):
+    def __init__(self, target, data, metric = "gini", max_depth = 0, min_split = 2, min_members = 1, min_gain = 0):
         self.root = Node(target, data)
         self.metric = metric
         self.max_depth = max_depth
@@ -29,49 +29,69 @@ class Tree:
         self.min_members = min_members
         self.min_gain = min_gain
 
-        print("Root created")
 
 
-    # def spawn_nodes(self, target, data, parent_score, metric ):
-    #     pass
-
-
-
-    def fit(self):
-        if self.metric == "gini":
-            parent_score = Node.gini(self.root.target)
-        else:
-            parent_score = Node.entropy(self.root.target)
-
+    
+    def fit_cart(self, target, data, depth):
+        """ Basic CART algorithm using gini impurity"""
+        parent_score = Node.gini(self.root.target)
         gain = 0.0
         split_feature = None
         split_value = None
         split_datasets = None
 
         features_count = self.root.data.shape[1]
-        
+
         for feature in range(0, features_count):
             vals, counts = np.unique(self.root.data[:,feature], return_counts = True)
             for val in vals:
                 t_target, t_data, f_target, f_data = Node.split_data(self.root.target, self.root.data, feature, val)
                 p = (len(t_target) / (len(t_target) + len(f_target)))
-                if self.metric == "gini":
-                    new_gain = parent_score - p*Node.gini(t_target) - (1-p)*Node.gini(f_target)
-                    
-                else:
-                    new_gain = parent_score - p*Node.entropy(t_target) - (1-p)*Node.entropy(f_target)
-
-                if new_gain > gain and len(t_target) > 0 and len(f_target) > 0:
-                    gain = new_gain
-                    split_feature = feature
-                    split_value = val
-                    split_datasets = (t_target, t_data, f_target, f_data)
-
+                new_gain = parent_score - p*Node.gini(t_target) - (1-p)*Node.gini(f_target)
 
         if gain > self.min_gain:
+            t_children = fit_cart(t_target, t_data, depth + 1)
+            f_children = fit_cart(f_target, f_data, depth + 1)
+            return Node(target, data, depth, )
+        else:
 
 
-        def classify(data):
+
+    
+    def fit_id3(self, target, data):
+        """Pseudo ID3 implementation
+         - prunes used features, but can works with non-binary targets"""
+        parent_score = Node.entropy(self.root.target)
+        gain = 0.0
+        split_feature = None
+        split_value = None
+        split_datasets = None
+
+        features_count = self.root.data.shape[1]
+        for feature in range(0, features_count):
+            vals, counts = np.unique(self.root.data[:,feature], return_counts = True)
+            for val in vals:
+                t_target, t_data, f_target, f_data = Node.split_data(self.root.target, self.root.data, feature, val)
+                p = (len(t_target) / (len(t_target) + len(f_target)))
+                new_gain = parent_score - p*Node.entropy(t_target) - (1-p)*Node.entropy(f_target)
+
+
+        pass
+
+
+    def fit(self):
+        if self.metric == "gini":
+            self.fit_cart(self.root.target, self.root.data, 0)
+        else:
+            self.fit_id3(self.root.target, self.root.data, 0)
+
+
+    def fit(self):
+        if gain > self.min_gain:
+            t_children = fit
+
+    
+    def classify(data):
             pass
 
 
@@ -94,6 +114,9 @@ def main():
 
     # Warning - very slow
     print("Running Decision Tree Example: digits")
+
+
+
 
 
 if __name__ == "__main__":
