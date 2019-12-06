@@ -88,10 +88,10 @@ class Tree:
                     gain = new_gain
                     split_feature = feature
                     split_value = val
-
+        
         if gain > self.min_gain and len(target) > self.min_split and (depth < self.max_depth or self.max_depth == 0) and features_count != 0:
-            t_children = self.fit_cart(split_datasets[0], split_datasets[1], depth + 1)
-            f_children = self.fit_cart(split_datasets[2], split_datasets[3], depth + 1)
+            t_children = self.fit_id3(split_datasets[0], split_datasets[1], depth + 1)
+            f_children = self.fit_id3(split_datasets[2], split_datasets[3], depth + 1)
             return Node(target, data, False, depth, t_children, f_children, split_feature, split_value)
         else:
             return Node(target, data, True, depth)
@@ -121,8 +121,8 @@ class Tree:
                     split_value = val
 
         if gain > self.min_gain and len(target) > self.min_split and (depth < self.max_depth or self.max_depth == 0):
-            t_children = self.fit_cart(split_datasets[0], split_datasets[1], depth + 1)
-            f_children = self.fit_cart(split_datasets[2], split_datasets[3], depth + 1)
+            t_children = self.fit_id3_simple(split_datasets[0], split_datasets[1], depth + 1)
+            f_children = self.fit_id3_simple(split_datasets[2], split_datasets[3], depth + 1)
             return Node(target, data, False, depth, t_children, f_children, split_feature, split_value)
         else:
             return Node(target, data, True, depth)
@@ -155,7 +155,9 @@ class Tree:
                     next_node = node.t_children
                 else:
                     next_node = node.f_children
-                new_data = Node.prune_feature(data, node.feature)
+                print(data)
+                new_data = np.delete(data, node.feature)
+                print(new_data)
                 return self.classify(new_data, next_node)
         else:
             if node.leaf is True: 
@@ -197,39 +199,60 @@ class Tree:
 # Testcode
 def main():
     # """Cross-validation test for 3 sets and simple test for digits"""
-    print("Running Decision Tree Example: iris")
+    # print("Running Decision Tree Example: iris")
+    
     iris = load_iris()
-    accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "gini")
-    print("----------------")
-    print(accuracy)
-    print("----------------")
-    accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "simple")
-    print("----------------")
-    print(accuracy)
-    print("=================")
-    print("Running Decision Tree Example: wine")
-    wine = load_wine() 
-    accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "gini")
-    print("----------------")
-    print(accuracy)
-    print("----------------")
-    accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "simple")
-    print("----------------")
-    print(accuracy)
-    print("=================")
-    print("Running Decision Tree Example: cancer")
-    cancer = load_breast_cancer() 
-    accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "gini")
-    print("----------------")    
-    print(accuracy)
-    print(prc)
-    print(rc)
-    print("----------------")
-    accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "simple")
-    print(accuracy)
-    print(prc)
-    print(rc)
-    print("=================")
+    tree = Tree(iris.target, iris.data, "entropy")
+    nodes = tree.fit()
+    for row in iris.data:
+        print(tree.classify(row, nodes))
+
+
+
+
+
+    # iris = load_iris()
+    # accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "gini")
+    # print("----------------")
+    # print(accuracy)
+    # print("----------------")
+    # accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "simple")
+    # print("----------------")
+    # print(accuracy)
+    # print("=================")
+    # print("Running Decision Tree Example: wine")
+    # wine = load_wine() 
+    # accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "gini")
+    # print("----------------")
+    # print(accuracy)
+    # print("----------------")
+    # accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "simple")
+    # print("----------------")
+    # print(accuracy)
+    # print("=================")
+    # print("Running Decision Tree Example: cancer")
+    # cancer = load_breast_cancer() 
+    # accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "gini")
+    # print("----------------")    
+    # print(accuracy)
+    # print(prc)
+    # print(rc)
+    # print("----------------")
+    # accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "simple")
+    # print(accuracy)
+    # print(prc)
+    # print(rc)
+    # print("=================")
+
+    # print("Running Decision Tree Example: digits")
+    # digits = load_digits() 
+    # accuracy, prc, rc = Tree.cross_validate(1,digits.target, digits.data, 0.25, "gini")
+    # print("----------------")    
+    # print(accuracy)
+    # print("----------------")
+    # accuracy, prc, rc = Tree.cross_validate(1,digits.target, digits.data, 0.25, "simple")
+    # print(accuracy)
+    # print("=================")
 
 
 if __name__ == "__main__":
