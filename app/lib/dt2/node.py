@@ -3,15 +3,24 @@ import numpy as np
 
 class Node:
     """ Node/Leaf for Decision Tree"""
-    def __init__(self, target, data, depth = 0, t_children = None, f_children = None):
+    def __init__(self, target, data, leaf = False, depth = 0, t_children = None, f_children = None, feature = None, value = None):
         self.target = target
         self.data = data
+        self.depth = depth
+        self.leaf = leaf
+
         self.t_children = t_children
         self.f_children = f_children
         self.leaf = False
-        self.assign_class()
-        pass
 
+        self.feature = feature
+        self.value = value
+        
+        self.assign_class()
+        
+
+    def __str__(self):
+        return "class: " + str(self.result) + " " + str(self.depth) + " " + str(self.leaf)
 
     def set_as_final(self):
         self.leaf = True
@@ -23,17 +32,12 @@ class Node:
         self.result = self.classes[self.classes_count.argmax()]
 
 
-    def set_splitter(self, feature, value):
-        self.split_feature = feature
-        self.split_value = value
-
-
     @staticmethod
     def entropy(target):
         classes, classes_count = np.unique(target, return_counts = True)
         count = classes_count.sum()
-        p = classes_count / count
-        entropy = np.sum(- p * np.log2())
+        pi = classes_count / count
+        entropy = np.sum(- pi * np.log2(pi))
         return entropy
 
     
