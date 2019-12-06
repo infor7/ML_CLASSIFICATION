@@ -11,7 +11,6 @@ class Node:
 
         self.t_children = t_children
         self.f_children = f_children
-        self.leaf = False
 
         self.feature = feature
         self.value = value
