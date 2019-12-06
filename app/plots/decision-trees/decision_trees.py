@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-
+import lib.node 
+from sklearn.datasets import load_iris
+from lib.tree import Tree
 
 def execute(ax=None, **kwargs):
     ax = ax or plt.gca()
@@ -13,6 +15,11 @@ def plot():
 
 if __name__ == "__main__":
     
+    iris = load_iris()
+	tree = Tree(iris.target, iris.data)
+	nodes = tree.fit()
+	print(tree.classify(iris.target[123],nodes))
+
     fig, [plot1, plot2] = plt.subplots(nrows=2)
     execute(plot1)
     execute(plot2)

@@ -196,11 +196,40 @@ class Tree:
 
 # Testcode
 def main():
-    """Cross-validation test for 3 sets and simple test for digits"""
+    # """Cross-validation test for 3 sets and simple test for digits"""
     print("Running Decision Tree Example: iris")
     iris = load_iris()
-    accuracy, prc, rc = Tree.cross_validate(10,iris.target, iris.data, 0.25, "simple")
+    accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "gini")
+    print("----------------")
     print(accuracy)
+    print("----------------")
+    accuracy, prc, rc = Tree.cross_validate(100,iris.target, iris.data, 0.25, "simple")
+    print("----------------")
+    print(accuracy)
+    print("=================")
+    print("Running Decision Tree Example: wine")
+    wine = load_wine() 
+    accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "gini")
+    print("----------------")
+    print(accuracy)
+    print("----------------")
+    accuracy, prc, rc = Tree.cross_validate(20,wine.target, wine.data, 0.25, "simple")
+    print("----------------")
+    print(accuracy)
+    print("=================")
+    print("Running Decision Tree Example: cancer")
+    cancer = load_breast_cancer() 
+    accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "gini")
+    print("----------------")    
+    print(accuracy)
+    print(prc)
+    print(rc)
+    print("----------------")
+    accuracy, prc, rc = Tree.cross_validate(10,cancer.target, cancer.data, 0.25, "simple")
+    print(accuracy)
+    print(prc)
+    print(rc)
+    print("=================")
 
 
 if __name__ == "__main__":
