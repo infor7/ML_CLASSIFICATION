@@ -70,17 +70,17 @@ def accuracy_of_method(data_split, labels_split, model_class_instance, sklearn_c
         training_labels = np.append(labels_split[rest[0]], labels_split[rest[1]], axis=0)
         testing_data = data_split[i]
         testing_labels = labels_split[i]
-        model_class_instance.train(training_data, training_labels)
+        model_class_instance.fit(training_data, training_labels)
         predictions = model_class_instance.predict(testing_data)
         # predictions = model_class_instance.naive_bayes_gaussian(training_data, training_labels, testing_data)
         # predictions = training_method(training_data, training_labels, testing_data)
         accuracy = sum(predictions==testing_labels)/len(testing_data)
         accuracies.append(accuracy)
-        print("my: ", accuracy)
+        # print("my: ", accuracy)
         if sklearn_class is not None:
             sklearn_class.fit(abs(training_data), training_labels)
             accuracy = sum(sklearn_class.predict(abs(testing_data))==testing_labels)/len(testing_data)
-            print("sklearn: ", accuracy)
+            # print("sklearn: ", accuracy)
             sklearn_accuracies.append(accuracy)
     return accuracies, sklearn_accuracies
 

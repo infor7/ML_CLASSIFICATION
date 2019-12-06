@@ -70,6 +70,125 @@
             </y_label>
         </PARAMETERS>
     </PLOT>
+    <METHOD>
+        <NAME>
+            NB_Gaussian
+        </NAME>
+        <PATH>
+            lib/naive_bayes.py
+        </PATH>
+        <CLASS>
+            NaiveBayesGaussian
+        </CLASS>
+    </METHOD>
+    <METHOD>
+        <NAME>
+            SK_NB_Gaussian
+        </NAME>
+        <PATH>
+            sklearn.naive_bayes
+        </PATH>
+        <CLASS>
+            GaussianNB
+        </CLASS>
+    </METHOD>
+
+    <METHOD>
+        <NAME>
+            NB_Multinomial
+        </NAME>
+        <PATH>
+            lib/naive_bayes.py
+        </PATH>
+        <CLASS>
+            NaiveBayesMultinomial
+        </CLASS>
+    </METHOD>
+    <METHOD>
+        <NAME>
+            SK_NB_Multinomial
+        </NAME>
+        <PATH>
+            sklearn.naive_bayes
+        </PATH>
+        <CLASS>
+            MultinomialNB
+        </CLASS>
+        <KWARGS>
+            <alpha>0.0001</alpha>
+            <fit_prior>True</fit_prior>
+        </KWARGS>
+    </METHOD>
+    <DATASET>
+        <label>
+            Iris
+        </label>
+        <path>
+            sklearn.datasets
+        </path>
+        <name>
+            load_iris
+        </name>
+        <type>
+            sklearn
+        </type>
+    </DATASET>
+    <DATASET>
+        <label>
+            Wines
+        </label>
+        <path>
+            sklearn.datasets
+        </path>
+        <name>
+            load_wine
+        </name>
+        <type>
+            sklearn
+        </type>
+    </DATASET>
+    <DATASET>
+        <label>
+            Cancer
+        </label>
+        <path>
+            sklearn.datasets
+        </path>
+        <name>
+            load_breast_cancer
+        </name>
+        <type>
+            sklearn
+        </type>
+    </DATASET>
+    <DATASET>
+        <label>
+            Digits
+        </label>
+        <path>
+            sklearn.datasets
+        </path>
+        <name>
+            load_digits
+        </name>
+        <type>
+            sklearn
+        </type>
+    </DATASET>
+    <!--<DATASET>
+        <name>
+            Trees
+        </name>
+        <path>
+            data_sources/covtype.csv
+        </path>
+        <label_index>
+            -1
+        </label_index>
+    </DATASET>-->
+</APP_CONFIG>
+
+<!--
     <DATASET>
         <name>
             Wines
@@ -112,15 +231,4 @@
             28
         </label_index>
     </DATASET>
-    <DATASET>
-        <name>
-            Trees
-        </name>
-        <path>
-            data_sources/covtype.csv
-        </path>
-        <label_index>
-            -1
-        </label_index>
-    </DATASET>
-</APP_CONFIG>
+-->
